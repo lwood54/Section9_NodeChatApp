@@ -5,7 +5,7 @@ const http = require('http');
     // create a new express application
 const express = require('express');
     // gain access to the generateMessage function
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
     // instead of (__dirname + '/../public')
 const publicPath = path.join(__dirname, '../public');
     // get 'socket.io' resources
@@ -42,6 +42,10 @@ io.on('connection', function(socket) {
         callback('This is from the server.');
     });
 
+        // emit a new location message based on receiving the coords from the user
+    socket.on('createLocationMessage', function(coords) {
+        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+    });
 
     // listening for a disconnect from user
     socket.on('disconnect', function() {

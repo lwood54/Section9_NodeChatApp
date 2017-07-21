@@ -23,6 +23,18 @@ socket.on('newMessage', function(message) {
     $('#messages').append(li);
 });
 
+    // setting up a new listening event that defines the anchor tag
+    // when it receives the info from the user that clicks share my location
+socket.on('newLocationMessage', function(message) {
+    var li = $('<li></li>');
+    var a = $('<a target="_blank">My current location</a>');
+
+    li.text(`${message.from}: `);
+    a.attr('href', message.url);
+    li.append(a);
+    $('#messages').append(li);
+});
+
     // using jQuery to collect data from the from with id 'message-form'
     // then we are setting the text = to the value of what is in the input field
 $('#message-form').on('submit', function(event) {
@@ -33,5 +45,26 @@ $('#message-form').on('submit', function(event) {
         text: $('[name=message]').val()
     }, function() {
 
+    });
+});
+
+    // save html field access to a variable
+var locationButton = $('#send-location');
+    // add click event for when someone clicks this button
+locationButton.on('click', function() {
+        // notify user when browser does not support geolocation api
+    if (!navigator.geolocation) {
+        return alert('Geolcation not supported by your browser.');
+    }
+
+        // get location using geolocation api services
+    navigator.geolocation.getCurrentPosition(function(position) {
+        console.log(position);
+        socket.emit('createLocationMessage', {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+        });
+    }, function() {
+        alert('Unable to fetch location.');
     });
 });
