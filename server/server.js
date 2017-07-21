@@ -25,16 +25,15 @@ app.use(express.static(publicPath));
 io.on('connection', function(socket) {
     console.log('New user connected.');
 
-        // emit an event from the server to the client
-    socket.emit('newMessage', {
-        from: 'Tiffany',
-        text: 'Hey there. Having fun with Node?',
-        createdAt: 123
-    });
-
-        // listening for a created message even from user
-    socket.on('createMessage', function(newMessage) {
-        console.log('createMessage', newMessage);
+        // listening for a created message event from user
+        // then emitting created message back out to everyone
+    socket.on('createMessage', function(message) {
+        console.log('createMessage', message);
+        io.emit('newMessage', {
+            from: message.from,
+            text: message.text,
+            createdAt: new Date().getTime()
+        });
     });
 
 
