@@ -35,9 +35,11 @@ io.on('connection', function(socket) {
 
         // listening for a created message event from user
         // then emitting created message back out to everyone
-    socket.on('createMessage', function(message) {
+        // including a callback function that can be set up to send info back if needed
+    socket.on('createMessage', function(message, callback) {
         console.log('createMessage', message);
         io.emit('newMessage', generateMessage(message.from, message.text));
+        callback('This is from the server.');
     });
 
 
