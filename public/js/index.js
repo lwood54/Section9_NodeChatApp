@@ -13,12 +13,12 @@ socket.on('disconnect', function() {
 
     // listens for a new message from the server to this client
 socket.on('newMessage', function(message) {
-    console.log('There is a new message!', message);
+    var formattedTime = moment(message.createdAt).format('h:mm a');
         // creating a var representing the html li field
     var li = $('<li></li>');
         // setting the li field text using template tags and data collected
         // from the 'message' variable that received our data
-    li.text(`${message.from}: ${message.text}`);
+    li.text(`${message.from} ${formattedTime}: ${message.text}`);
 
     $('#messages').append(li);
 });
@@ -26,10 +26,11 @@ socket.on('newMessage', function(message) {
     // setting up a new listening event that defines the anchor tag
     // when it receives the info from the user that clicks share my location
 socket.on('newLocationMessage', function(message) {
+    var formattedTime = moment(message.createdAt).format('h:mm a');
     var li = $('<li></li>');
     var a = $('<a target="_blank">My current location</a>');
 
-    li.text(`${message.from}: `);
+    li.text(`${message.from} ${formattedTime}: `);
     a.attr('href', message.url);
     li.append(a);
     $('#messages').append(li);
