@@ -4,6 +4,8 @@ const path = require('path');
 const http = require('http');
     // create a new express application
 const express = require('express');
+    // gain access to the generateMessage function
+const {generateMessage} = require('./utils/message');
     // instead of (__dirname + '/../public')
 const publicPath = path.join(__dirname, '../public');
     // get 'socket.io' resources
@@ -26,33 +28,16 @@ io.on('connection', function(socket) {
     console.log('New user connected.');
 
     // create a new message from server/admin to new user
-    socket.emit('newMessage', {
-        from: 'Admin',
-        text: 'Welcome to the chat app!',
-        createdAt: new Date().getTime()
-    });
+    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app!'));
 
     // create a new message from server/admin to other users
-    socket.broadcast.emit('newMessage', {
-        from: 'Admin',
-        text: 'A new user has joined!',
-        createdAt: new Date().getTime()
-    });
+    socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined.'));
 
         // listening for a created message event from user
         // then emitting created message back out to everyone
     socket.on('createMessage', function(message) {
         console.log('createMessage', message);
-        io.emit('newMessage', {
-            from: message.from,
-            text: message.text,
-            createdAt: new Date().getTime()
-        });
-        // socket.broadcast.emit('newMessage', {
-        //     from: message.from,
-        //     text: message.text,
-        //     createdAt: new Date().getTime()
-        // });
+        io.emit('newMessage', generateMessage(message.from, message.text));
     });
 
 
