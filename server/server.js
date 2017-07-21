@@ -21,10 +21,24 @@ var io = socketIO(server);
     // Use Express to connect our static/public folders and serve them up to browser
 app.use(express.static(publicPath));
 
-// lets you listen for a 'connection' from the client
+    // lets you listen for a 'connection' from the client
 io.on('connection', function(socket) {
-    console.log('New user connected');
+    console.log('New user connected.');
 
+        // emit an event from the server to the client
+    socket.emit('newMessage', {
+        from: 'Tiffany',
+        text: 'Hey there. Having fun with Node?',
+        createdAt: 123
+    });
+
+        // listening for a created message even from user
+    socket.on('createMessage', function(newMessage) {
+        console.log('createMessage', newMessage);
+    });
+
+
+    // listening for a disconnect from user
     socket.on('disconnect', function() {
         console.log('User was disconnected');
     });
