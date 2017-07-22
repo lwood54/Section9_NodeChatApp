@@ -6,6 +6,8 @@ const http = require('http');
 const express = require('express');
     // gain access to the generateMessage function
 const {generateMessage, generateLocationMessage} = require('./utils/message');
+    // get function to check for valid string
+const {isRealString} = require('./utils/validation');
     // instead of (__dirname + '/../public')
 const publicPath = path.join(__dirname, '../public');
     // get 'socket.io' resources
@@ -27,11 +29,25 @@ app.use(express.static(publicPath));
 io.on('connection', function(socket) {
     console.log('New user connected.');
 
-    // create a new message from server/admin to new user
-    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app!'));
+    socket.on('join', function(params, callback) {
+        if (!isRealString(params.name) || !isRealString(params.room)) {
+            callback('Name and room name are required.');
+        }
+        socket.join(params.room);
+            // socket.leave('The Office Fans');
 
-    // create a new message from server/admin to other users
-    socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined.'));
+            // io.emit --> io.to('The Office Fans').emit();
+            // socket.broadcast.emit --> socket.broadcast.to('The Office Fans').emit();
+            // socket.emit
+
+            // create a new message from server/admin to new user
+        socket.emit('newMessage', generateMessage(`${params.room}`, 'Welcome to the chat app!'));
+
+            // create a new message from server/admin to other users
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage(`${params.room}`, `${params.name} has joined.`));
+
+        callback();
+    });
 
         // listening for a created message event from user
         // then emitting created message back out to everyone
