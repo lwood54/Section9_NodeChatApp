@@ -1,6 +1,22 @@
     // opens up a web socket connection
 var socket = io();
 
+function scrollToBottom() {
+        // selectors
+    var messages = $('#messages');
+    var newMessage = messages.children('li:last-child');
+        // heights
+    var clientHeight = messages.prop('clientHeight');
+    var scrollTop = messages.prop('scrollTop');
+    var scrollHeight = messages.prop('scrollHeight');
+    var newMessageHeight = newMessage.innerHeight();
+    var lastMessageHeight = newMessage.prev().innerHeight();
+
+    if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+        messages.scrollTop(scrollHeight);
+    }
+}
+
     // listens for the server to connect with this client
 socket.on('connect', function() {
     console.log('Connected to server');
@@ -23,6 +39,7 @@ socket.on('newMessage', function(message) {
     });
 
     $('#messages').append(html);
+    scrollToBottom();
 });
 
     // setting up a new listening event that defines the anchor tag
@@ -36,6 +53,7 @@ socket.on('newLocationMessage', function(message) {
         createdAt: formattedTime
     });
     $('#messages').append(html);
+    scrollToBottom();
 });
 
     // using jQuery to collect data from the from with id 'message-form'
