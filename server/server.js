@@ -56,14 +56,18 @@ io.on('connection', function(socket) {
         // then emitting created message back out to everyone
         // including a callback function that can be set up to send info back if needed
     socket.on('createMessage', function(message, callback) {
-        console.log('createMessage', message);
-        io.emit('newMessage', generateMessage(message.from, message.text));
+        var user = users.getUser(socket.id);
+        if (user && isRealString(message.text)) {
+            io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+        } 
+
         callback();
     });
 
         // emit a new location message based on receiving the coords from the user
     socket.on('createLocationMessage', function(coords) {
-        io.emit('newLocationMessage', generateLocationMessage(`${params.room} group: `, coords.latitude, coords.longitude));
+        var user = users.getUser(socket.id);
+        io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
     });
 
     // listening for a disconnect from user
@@ -72,7 +76,7 @@ io.on('connection', function(socket) {
 
         if (user) {
             io.to(user.room).emit('updateUserList', users.getUserList(user.room));
-            io.to(user.room).emit('newMessage', generateMessage(`Admin`, `${user.name} has left`));
+            io.to(user.room).emit('newMessage', generateMessage(`${user.room} group: `, `${user.name} has left`));
         }
 
     });
